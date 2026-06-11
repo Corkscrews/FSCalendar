@@ -31,7 +31,8 @@ static NSDate *FSCalendarDefaultMinimumDate(NSCalendar *calendar)
     components.year = FSCalendarDefaultMinimumYear;
     components.month = 1;
     components.day = 1;
-    return [calendar dateFromComponents:components];
+    components.timeZone = calendar.timeZone;
+    return [calendar startOfDayForDate:[calendar dateFromComponents:components]];
 }
 
 static inline void FSCalendarAssertDateInBounds(NSDate *date, NSCalendar *calendar, NSDate *minimumDate, NSDate *maximumDate) {
@@ -167,7 +168,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     _formatter = [[NSDateFormatter alloc] init];
     _formatter.dateFormat = @"yyyy-MM-dd";
     _locale = [NSLocale currentLocale];
-    _timeZone = [NSTimeZone defaultTimeZone];
+    _timeZone = [[NSTimeZone defaultTimeZone] fs_normalizedTimeZone];
     _firstWeekday = 1;
     [self invalidateDateTools];
     
@@ -297,8 +298,36 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 
 - (void)setTimeZone:(NSTimeZone *)tz
 {
-    _timeZone = tz;
+    NSTimeZone *normalized = [(tz ?: [NSTimeZone defaultTimeZone]) fs_normalizedTimeZone];
+    if (_timeZone && [_timeZone isEqualToTimeZone:normalized]) {
+        return;
+    }
+    _timeZone = normalized;
     [self invalidateDateTools];
+    
+    _needsRequestingBoundingDates = YES;
+    [self requestBoundingDatesIfNecessary];
+    _currentPage = [self.gregorian fs_firstDayOfMonth:_today];
+    
+    if (_selectedDates.count) {
+        NSArray<NSDate *> *selectedDates = _selectedDates.copy;
+        [_selectedDates removeAllObjects];
+        for (NSDate *date in selectedDates) {
+            NSDate *startOfDay = [self.gregorian startOfDayForDate:date];
+            if ([self isDateInRange:startOfDay]) {
+                [_selectedDates addObject:startOfDay];
+            }
+        }
+    }
+    
+    if (_collectionView) {
+        [_collectionView reloadData];
+        [self.calendarHeaderView reloadData];
+        [self configureAppearance];
+        [self setNeedsLayout];
+        [self layoutIfNeeded];
+        [self scrollToPageForDate:_currentPage animated:NO];
+    }
 }
 
 - (void)setLayoutDirection:(FSCalendarLayoutDirection)layoutDirection
@@ -1103,6 +1132,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     
     NSDate *targetDate = [self.gregorian startOfDayForDate:date];
     NSIndexPath *targetIndexPath = [self.calculator indexPathForDate:targetDate];
+    if (!targetIndexPath) {
+        return;
+    }
     
     BOOL shouldSelect = YES;
     // 跨月份点击
@@ -1343,13 +1375,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 
 - (void)updateToday
 {
-    NSDateComponents *dateComponents = [self.gregorian components:(NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay) fromDate:[NSDate date]];
-    dateComponents.hour = 0;
-    dateComponents.minute = 0;
-    dateComponents.second = 0;
-    dateComponents.timeZone = self.timeZone;
-    
-    _today = [self.gregorian dateFromComponents:dateComponents];
+    _today = [self.gregorian startOfDayForDate:[NSDate date]];
 }
 
 - (void)invalidateLayout

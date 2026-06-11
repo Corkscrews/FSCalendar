@@ -139,6 +139,25 @@
     if (item < 0 || section < 0) {
         return nil;
     }
+    NSInteger numberOfSections = [self numberOfSections];
+    if (section >= numberOfSections) {
+        return nil;
+    }
+    switch (scope) {
+        case FSCalendarScopeMonth: {
+            NSInteger maxItem = self.calendar.floatingMode ? [self numberOfRowsInSection:section] * 7 - 1 : 41;
+            if (item > maxItem) {
+                return nil;
+            }
+            break;
+        }
+        case FSCalendarScopeWeek: {
+            if (item > 6) {
+                return nil;
+            }
+            break;
+        }
+    }
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:item inSection:section];
     return indexPath;
 }

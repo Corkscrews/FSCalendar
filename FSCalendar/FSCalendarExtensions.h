@@ -37,6 +37,16 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
+@interface NSTimeZone (FSCalendarExtensions)
+
+/**
+ Returns a canonical Foundation time zone resolved by IANA identifier.
+ Swift-bridged `TimeZone` values (e.g. America/Mazatlan) can otherwise produce inconsistent calendar math.
+ */
+- (NSTimeZone *)fs_normalizedTimeZone;
+
+@end
+
 @interface NSCalendar (FSCalendarExtensions)
 
 - (nullable NSDate *)fs_firstDayOfMonth:(NSDate *)month;

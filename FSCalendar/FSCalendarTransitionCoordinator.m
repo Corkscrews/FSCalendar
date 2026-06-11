@@ -141,7 +141,8 @@
         }
         translation = MIN(ABS(maxTranslation), translation);
         translation = MAX(0, translation);
-        CGFloat progress = translation/ABS(maxTranslation);
+        CGFloat magnitude = ABS(maxTranslation);
+        CGFloat progress = magnitude > 0 ? translation / magnitude : 0;
         progress;
     });
     [self performAlphaAnimationWithProgress:progress];
@@ -167,7 +168,8 @@
         }
         translation = MIN(ABS(maxTranslation), translation);
         translation = MAX(0, translation);
-        CGFloat progress = translation/ABS(maxTranslation);
+        CGFloat magnitude = ABS(maxTranslation);
+        CGFloat progress = magnitude > 0 ? translation / magnitude : 0;
         progress;
     });
 

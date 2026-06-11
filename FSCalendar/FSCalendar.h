@@ -253,6 +253,9 @@ IB_DESIGNABLE
 
 /**
  * The timezone of the calendar. `defaultTimeZone` by default.
+ *
+ * Assigned values are normalized to Foundation's canonical `NSTimeZone` (by IANA identifier),
+ * which avoids calendar math issues when bridging Swift `TimeZone` values such as `America/Mazatlan`.
  */
 @property (strong, nonatomic) NSTimeZone *timeZone;
 

@@ -10,6 +10,7 @@
 		30024F951BD1015300B1C04C /* DelegateAppearanceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30024F941BD1015300B1C04C /* DelegateAppearanceViewController.m */; };
 		30145EF11D6D754D00AA5F72 /* FSCalendarTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE638CF51B8A1F550006DD1A /* FSCalendarTests.m */; };
 		30AA11BB22CC33DD44EE01 /* FSCalendarPre1970Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AA11BB22CC33DD44EE02 /* FSCalendarPre1970Tests.m */; };
+		30AA11BB22CC33DD44EE06 /* FSCalendarTimeZoneTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AA11BB22CC33DD44EE07 /* FSCalendarTimeZoneTests.m */; };
 		30AA11BB22CC33DD44EE03 /* HistoricalCalendarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AA11BB22CC33DD44EE05 /* HistoricalCalendarViewController.m */; };
 		301F79CB1DFD39E700D8631E /* FSCalendarDelegationProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 301F79C91DFD39E700D8631E /* FSCalendarDelegationProxy.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		301F79CC1DFD39E700D8631E /* FSCalendarDelegationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 301F79CA1DFD39E700D8631E /* FSCalendarDelegationProxy.m */; };
@@ -131,6 +132,7 @@
 		3031F3ED1CDEDFC500C174D7 /* DIYExampleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DIYExampleViewController.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		3031F3EE1CDEDFC500C174D7 /* DIYExampleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = DIYExampleViewController.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		30AA11BB22CC33DD44EE02 /* FSCalendarPre1970Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSCalendarPre1970Tests.m; sourceTree = "<group>"; };
+		30AA11BB22CC33DD44EE07 /* FSCalendarTimeZoneTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FSCalendarTimeZoneTests.m; sourceTree = "<group>"; };
 		30AA11BB22CC33DD44EE04 /* HistoricalCalendarViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HistoricalCalendarViewController.h; sourceTree = SOURCE_ROOT; };
 		30AA11BB22CC33DD44EE05 /* HistoricalCalendarViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HistoricalCalendarViewController.m; sourceTree = SOURCE_ROOT; };
 		3055B1C01DA9323A002AFA13 /* FSCalendarExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSCalendarExtensions.h; sourceTree = "<group>"; };
@@ -412,6 +414,7 @@
 			children = (
 				EE638CF51B8A1F550006DD1A /* FSCalendarTests.m */,
 				30AA11BB22CC33DD44EE02 /* FSCalendarPre1970Tests.m */,
+				30AA11BB22CC33DD44EE07 /* FSCalendarTimeZoneTests.m */,
 				301F93441D8802D90028BEC8 /* FSCalendarExtensionTest.m */,
 				EE638CF31B8A1F550006DD1A /* Supporting Files */,
 			);
@@ -661,6 +664,7 @@
 				301F93451D8802D90028BEC8 /* FSCalendarExtensionTest.m in Sources */,
 				30145EF11D6D754D00AA5F72 /* FSCalendarTests.m in Sources */,
 				30AA11BB22CC33DD44EE01 /* FSCalendarPre1970Tests.m in Sources */,
+				30AA11BB22CC33DD44EE06 /* FSCalendarTimeZoneTests.m in Sources */,
 				30F4C9121E07C12B00D2EC4D /* FSCalendarDelegationFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

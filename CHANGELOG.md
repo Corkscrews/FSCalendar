@@ -5,6 +5,7 @@
 ### Changed
 
 - The default navigable minimum date is now **1900-01-01** instead of **1970-01-01**. Apps that relied on the implicit 1970 floor without implementing `minimumDateForCalendar:` will see a wider scrollable range. Restore the previous behavior by returning `1970-01-01` from `minimumDateForCalendar:`.
+- Assigned calendar time zones are normalized to Foundation's canonical `NSTimeZone` by IANA identifier, fixing incorrect month layout and selection crashes with Swift-bridged zones such as `America/Mazatlan` ([#1424](https://github.com/WenchaoD/FSCalendar/issues/1424)).
 - Month header titles now anchor on the first day of the minimum month, matching grid section math.
 - Week scope section counting now uses day-based offsets from the normalized first week of the minimum date.
 

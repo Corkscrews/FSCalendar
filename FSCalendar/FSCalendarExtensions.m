@@ -144,23 +144,39 @@
 
 @end
 
+@implementation NSTimeZone (FSCalendarExtensions)
+
+- (NSTimeZone *)fs_normalizedTimeZone
+{
+    NSString *identifier = self.name;
+    if (identifier.length > 0) {
+        NSTimeZone *canonical = [NSTimeZone timeZoneWithName:identifier];
+        if (canonical) {
+            return canonical;
+        }
+    }
+    return self;
+}
+
+@end
+
 @implementation NSCalendar (FSCalendarExtensions)
 
 - (nullable NSDate *)fs_firstDayOfMonth:(NSDate *)month
 {
     if (!month) return nil;
-    NSDateComponents *components = [self components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour fromDate:month];
+    NSDateComponents *components = [self components:NSCalendarUnitYear|NSCalendarUnitMonth fromDate:month];
     components.day = 1;
-    return [self dateFromComponents:components];
+    return [self startOfDayForDate:[self dateFromComponents:components]];
 }
 
 - (nullable NSDate *)fs_lastDayOfMonth:(NSDate *)month
 {
     if (!month) return nil;
-    NSDateComponents *components = [self components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour fromDate:month];
+    NSDateComponents *components = [self components:NSCalendarUnitYear|NSCalendarUnitMonth fromDate:month];
     components.month++;
     components.day = 0;
-    return [self dateFromComponents:components];
+    return [self startOfDayForDate:[self dateFromComponents:components]];
 }
 
 - (nullable NSDate *)fs_firstDayOfWeek:(NSDate *)week
@@ -201,8 +217,7 @@
         componentsToSubtract.day = componentsToSubtract.day - 7;
     }
     NSDate *middleDayOfWeek = [self dateByAddingComponents:componentsToSubtract toDate:week options:0];
-    NSDateComponents *components = [self components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay|NSCalendarUnitHour fromDate:middleDayOfWeek];
-    middleDayOfWeek = [self dateFromComponents:components];
+    middleDayOfWeek = [self startOfDayForDate:middleDayOfWeek];
     componentsToSubtract.day = NSIntegerMax;
     return middleDayOfWeek;
 }
