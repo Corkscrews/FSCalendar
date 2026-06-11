@@ -124,6 +124,8 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 
 - (void)reloadDataForCell:(FSCalendarCell *)cell atIndexPath:(NSIndexPath *)indexPath;
 
+- (BOOL)isIndexPathValidForCollectionView:(NSIndexPath *)indexPath;
+
 - (void)adjustMonthPosition;
 - (BOOL)requestBoundingDatesIfNecessary;
 - (void)executePendingOperationsIfNeeded;
@@ -1116,6 +1118,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
                 if (!shouldSelect) {
                     return;
                 }
+                if (![self isIndexPathValidForCollectionView:targetIndexPath]) {
+                    return;
+                }
                 [_collectionView selectItemAtIndexPath:targetIndexPath animated:YES scrollPosition:UICollectionViewScrollPositionNone];
                 [self collectionView:_collectionView didSelectItemAtIndexPath:targetIndexPath];
             }
@@ -1129,6 +1134,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
                     if (selectedDate) {
                         [self deselectDate:selectedDate];
                     }
+                    if (![self isIndexPathValidForCollectionView:targetIndexPath]) {
+                        return;
+                    }
                     [_collectionView selectItemAtIndexPath:targetIndexPath animated:YES scrollPosition:UICollectionViewScrollPositionNone];
                     [self collectionView:_collectionView didSelectItemAtIndexPath:targetIndexPath];
                 }
@@ -1141,6 +1149,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         if (self.selectedDate && !self.allowsMultipleSelection) {
             [self deselectDate:self.selectedDate];
         }
+        if (![self isIndexPathValidForCollectionView:targetIndexPath]) {
+            return;
+        }
         [_collectionView selectItemAtIndexPath:targetIndexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
         FSCalendarCell *cell = (FSCalendarCell *)[_collectionView cellForItemAtIndexPath:targetIndexPath];
         [cell performSelecting];
@@ -1148,7 +1159,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         [self selectCounterpartDate:targetDate];
         
     } else if (![_collectionView.indexPathsForSelectedItems containsObject:targetIndexPath]) {
-        [_collectionView selectItemAtIndexPath:targetIndexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+        if ([self isIndexPathValidForCollectionView:targetIndexPath]) {
+            [_collectionView selectItemAtIndexPath:targetIndexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+        }
     }
     
     if (scrollToDate) {
@@ -1166,6 +1179,19 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 }
 
 #pragma mark - Private methods
+
+- (BOOL)isIndexPathValidForCollectionView:(NSIndexPath *)indexPath
+{
+    if (!indexPath) {
+        return NO;
+    }
+    NSInteger section = indexPath.section;
+    if (section < 0 || section >= [_collectionView numberOfSections]) {
+        return NO;
+    }
+    NSInteger item = indexPath.item;
+    return item >= 0 && item < [_collectionView numberOfItemsInSection:section];
+}
 
 - (void)scrollToDate:(NSDate *)date
 {
@@ -1495,9 +1521,13 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     }
     // Synchronize selecion state to the collection view, otherwise delegate methods would not be triggered.
     if (cell.selected) {
-        [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+        if ([self isIndexPathValidForCollectionView:indexPath]) {
+            [self.collectionView selectItemAtIndexPath:indexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
+        }
     } else {
-        [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
+        if ([self isIndexPathValidForCollectionView:indexPath]) {
+            [self.collectionView deselectItemAtIndexPath:indexPath animated:NO];
+        }
     }
     [self invalidateAppearanceForCell:cell forDate:date];
     [cell configureAppearance];
