@@ -4,7 +4,7 @@
 [![Apps Using](https://img.shields.io/badge/Apps%20Using-%3E%2010,000-00BFFF.svg?style=plastic)](https://cocoapods.org/pods/FSCalendar)
 [![Total Downloads](https://img.shields.io/badge/Total%20Downloads-%3E%20500,000-00BFFF.svg?style=plastic)](https://cocoapods.org/pods/FSCalendar)
 <br>
-[![Travis](https://travis-ci.org/WenchaoD/FSCalendar.svg?branch=master)](https://travis-ci.org/WenchaoD/FSCalendar)
+[![Travis](https://travis-ci.org/Corkscrews/FSCalendar.svg?branch=master)](https://travis-ci.org/Corkscrews/FSCalendar)
 [![Version](https://img.shields.io/cocoapods/v/FSCalendar.svg?style=flat)](http://cocoadocs.org/docsets/FSCalendar)
 [![Platform](https://img.shields.io/badge/platform-iOS%207%2B-blue.svg?style=flat)](http://cocoadocs.org/docsets/FSCalendar)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
@@ -56,7 +56,7 @@
 |  ![1](https://cloud.githubusercontent.com/assets/5186464/21747193/3111e4ee-d59a-11e6-8e4d-ca695b53e421.png)    |  ![2](https://cloud.githubusercontent.com/assets/5186464/21747393/42a753fa-d5a0-11e6-9cb2-de7cc642e69e.png)  |  ![3](https://cloud.githubusercontent.com/assets/5186464/21897255/ff78fcdc-d923-11e6-9d59-62119bc4343f.png)  |  ![4](https://cloud.githubusercontent.com/assets/5186464/21747192/3111cacc-d59a-11e6-8626-44cd75ebd794.png)  |
 | ------------- | ------------- | ------------- | ------------- |
 
-#### [***More Achievements***](https://github.com/WenchaoD/FSCalendar/wiki/) are available in [***FSCalendar Gallery***](https://github.com/WenchaoD/FSCalendar/wiki/)  
+#### [***More Achievements***](https://github.com/Corkscrews/FSCalendar/wiki/) are available in [***FSCalendar Gallery***](https://github.com/Corkscrews/FSCalendar/wiki/)  
 
 # <a id="installation"></a>Installation
 
@@ -85,14 +85,14 @@ end
 * For iOS8+
 
 ```ruby
-github "WenchaoD/FSCalendar"
+github "Corkscrews/FSCalendar"
 ```
 
 ## SPM:
 
 Add dependency:
 ```swift
-.package(url: "https://github.com/WenchaoD/FSCalendar.git", from: "2.9.0")
+.package(url: "https://github.com/Corkscrews/FSCalendar.git", from: "2.9.0")
 ```
 
 ## Manually:
@@ -353,4 +353,8 @@ BOOL inSameUnit = [self.gregorian isDate:date1 equalToDate:date2 toUnitGranulari
 # License
 FSCalendar is available under the MIT license. See the LICENSE file for more info.
 
-### [Documentation](http://cocoadocs.org/docsets/FSCalendar/) | [More Usage](https://github.com/WenchaoD/FSCalendar/blob/master/MOREUSAGE.md) | [简书](http://www.jianshu.com/notebooks/4276521/latest)
+## Authors
+- **Wenchao Ding** — original author
+- **Pedro Paulo de Amorim** — co-author ([Corkscrews](https://github.com/Corkscrews) fork, 2.9.0+)
+
+### [Documentation](http://cocoadocs.org/docsets/FSCalendar/) | [More Usage](https://github.com/Corkscrews/FSCalendar/blob/master/MOREUSAGE.md) | [简书](http://www.jianshu.com/notebooks/4276521/latest)

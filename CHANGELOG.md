@@ -1,6 +1,8 @@
 # Change Log
 
-## [2.9.0](https://github.com/WenchaoD/FSCalendar/tree/2.9.0) (2026-06-12)
+## [2.9.0](https://github.com/Corkscrews/FSCalendar/tree/2.9.0) (2026-06-12)
+
+Maintained by [Pedro Paulo de Amorim](https://github.com/Corkscrews) as co-author of the Corkscrews fork.
 
 ### Changed
 
