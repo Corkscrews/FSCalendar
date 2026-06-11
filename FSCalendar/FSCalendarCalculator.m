@@ -128,7 +128,10 @@
             break;
         }
         case FSCalendarScopeWeek: {
-            section = [self.gregorian components:NSCalendarUnitWeekOfYear fromDate:[self.gregorian fs_firstDayOfWeek:self.minimumDate] toDate:[self.gregorian fs_firstDayOfWeek:date] options:0].weekOfYear;
+            NSDate *firstWeekOfMinimum = [self.gregorian fs_firstDayOfWeek:self.minimumDate];
+            NSDate *firstWeekOfTarget = [self.gregorian fs_firstDayOfWeek:date];
+            NSInteger days = [self.gregorian components:NSCalendarUnitDay fromDate:firstWeekOfMinimum toDate:firstWeekOfTarget options:0].day;
+            section = days / 7;
             item = (([self.gregorian component:NSCalendarUnitWeekday fromDate:date] - self.gregorian.firstWeekday) + 7) % 7;
             break;
         }
@@ -190,7 +193,7 @@
     NSNumber *key = @(section);
     NSDate *week = self.weeks[key];
     if (!week) {
-        week = [self.gregorian dateByAddingUnit:NSCalendarUnitWeekOfYear value:section toDate:[self.gregorian fs_firstDayOfWeek:self.minimumDate] options:0];
+        week = [self.gregorian dateByAddingUnit:NSCalendarUnitDay value:section * 7 toDate:[self.gregorian fs_firstDayOfWeek:self.minimumDate] options:0];
         self.weeks[key] = week;
     }
     return week;
@@ -271,7 +274,10 @@
 - (void)reloadSections
 {
     self.numberOfMonths = [self.gregorian components:NSCalendarUnitMonth fromDate:[self.gregorian fs_firstDayOfMonth:self.minimumDate] toDate:self.maximumDate options:0].month+1;
-    self.numberOfWeeks = [self.gregorian components:NSCalendarUnitWeekOfYear fromDate:[self.gregorian fs_firstDayOfWeek:self.minimumDate] toDate:self.maximumDate options:0].weekOfYear+1;
+    NSDate *firstWeekOfMinimum = [self.gregorian fs_firstDayOfWeek:self.minimumDate];
+    NSDate *firstWeekOfMaximum = [self.gregorian fs_firstDayOfWeek:self.maximumDate];
+    NSInteger weekDays = [self.gregorian components:NSCalendarUnitDay fromDate:firstWeekOfMinimum toDate:firstWeekOfMaximum options:0].day;
+    self.numberOfWeeks = weekDays / 7 + 1;
     [self clearCaches];
 }
 

@@ -21,6 +21,8 @@
 #import "FSCalendarCell.h"
 #import "FSCalendarWeekdayView.h"
 #import "FSCalendarHeaderView.h"
+#import "FSCalendarCollectionView.h"
+#import "FSCalendarCollectionView.h"
 
 //! Project version number for FSCalendar.
 FOUNDATION_EXPORT double FSCalendarVersionNumber;
@@ -36,6 +38,12 @@ typedef NS_ENUM(NSUInteger, FSCalendarScope) {
 typedef NS_ENUM(NSUInteger, FSCalendarScrollDirection) {
     FSCalendarScrollDirectionVertical,
     FSCalendarScrollDirectionHorizontal
+};
+
+typedef NS_ENUM(NSUInteger, FSCalendarLayoutDirection) {
+    FSCalendarLayoutDirectionAutomatic,
+    FSCalendarLayoutDirectionLeftToRight,
+    FSCalendarLayoutDirectionRightToLeft
 };
 
 typedef NS_ENUM(NSUInteger, FSCalendarPlaceholderType) {
@@ -79,12 +87,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable UIImage *)calendar:(FSCalendar *)calendar imageForDate:(NSDate *)date;
 
 /**
- * Asks the dataSource the minimum date to display.
+ Asks the dataSource the minimum date to display. When not implemented, defaults to 1900-01-01.
+ Implement this method to support dates earlier than 1900 or to restore the previous 1970-01-01 floor.
  */
 - (NSDate *)minimumDateForCalendar:(FSCalendar *)calendar;
 
 /**
- * Asks the dataSource the maximum date to display.
+ Asks the dataSource the maximum date to display. When not implemented, defaults to 2099-12-31.
  */
 - (NSDate *)maximumDateForCalendar:(FSCalendar *)calendar;
 
@@ -353,6 +362,27 @@ IB_DESIGNABLE
 @property (strong, nonatomic) FSCalendarHeaderView *calendarHeaderView;
 
 /**
+ The collection view that displays day cells.
+
+ Exposed to support RTL layout control. When the app switches layout direction at runtime
+ (for example via `UIView.appearance().semanticContentAttribute`), set `layoutDirection`
+ or assign `semanticContentAttribute` on this view and the other calendar subviews to
+ keep the calendar readable.
+ */
+@property (weak, nonatomic, readonly) FSCalendarCollectionView *collectionView;
+
+/**
+ The layout direction of the calendar.
+
+ - `FSCalendarLayoutDirectionAutomatic`: follow the system layout direction.
+ - `FSCalendarLayoutDirectionLeftToRight`: keep the calendar left-to-right even in RTL apps.
+ - `FSCalendarLayoutDirectionRightToLeft`: force right-to-left layout.
+
+ Defaults to `FSCalendarLayoutDirectionAutomatic`.
+ */
+@property (assign, nonatomic) FSCalendarLayoutDirection layoutDirection;
+
+/**
  A Boolean value that determines whether users can select a date.
  */
 @property (assign, nonatomic) IBInspectable BOOL allowsSelection;
@@ -389,11 +419,17 @@ IB_DESIGNABLE
 
 /**
  A date object representing the minimum day enable、visible and selectable. (read-only)
+
+ Defaults to 1900-01-01 when the data source does not implement `minimumDateForCalendar:`.
+ For dates earlier than 1900, implement `minimumDateForCalendar:` on your data source.
+ Very wide ranges can affect scrolling performance because each month is a collection section.
  */
 @property (readonly, nonatomic) NSDate *minimumDate;
 
 /**
  A date object representing the maximum day enable、visible and selectable. (read-only)
+
+ Defaults to 2099-12-31 when the data source does not implement `maximumDateForCalendar:`.
  */
 @property (readonly, nonatomic) NSDate *maximumDate;
 

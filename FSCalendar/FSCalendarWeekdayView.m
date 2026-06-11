@@ -69,11 +69,7 @@
     CGFloat contentWidth = self.contentView.fs_width;
     FSCalendarSliceCake(contentWidth, count, widths);
     
-    BOOL opposite = NO;
-    if (@available(iOS 9.0, *)) {
-        UIUserInterfaceLayoutDirection direction = [UIView userInterfaceLayoutDirectionForSemanticContentAttribute:self.calendar.semanticContentAttribute];
-        opposite = (direction == UIUserInterfaceLayoutDirectionRightToLeft);
-    }
+    BOOL opposite = ([self effectiveUserInterfaceLayoutDirection] == UIUserInterfaceLayoutDirectionRightToLeft);
     CGFloat x = 0;
     for (NSInteger i = 0; i < count; i++) {
         CGFloat width = widths[i];

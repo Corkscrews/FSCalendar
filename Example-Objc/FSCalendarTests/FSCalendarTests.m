@@ -27,6 +27,8 @@
 {
     [super setUp];
     self.calendar = [[FSCalendar alloc] initWithFrame:CGRectMake(0, 0, 320, 300)];
+    self.calendar.dataSource = self;
+    [self.calendar reloadData];
     [self.calendar.calculator reloadSections];
     self.indexPath = [NSIndexPath indexPathForItem:25 inSection:0];
     
@@ -60,7 +62,8 @@
 
 - (void)testOutOfBoundsException
 {
-    XCTAssertThrows([self.calendar selectDate:[self.formatter dateFromString:@"1900-01-01"]]);
+    XCTAssertNoThrow([self.calendar selectDate:[self.formatter dateFromString:@"1900-01-01"]]);
+    XCTAssertThrows([self.calendar selectDate:[self.formatter dateFromString:@"1899-12-31"]]);
     XCTAssertThrows([self.calendar selectDate:[self.formatter dateFromString:@"2300-01-01"]]);
 }
 

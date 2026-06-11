@@ -21,6 +21,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSInteger const FSCalendarDefaultMinimumYear = 1900;
+static NSString * const FSCalendarDefaultMaximumDateString = @"2099-12-31";
+
+static NSDate *FSCalendarDefaultMinimumDate(NSCalendar *calendar)
+{
+    NSDateComponents *components = [[NSDateComponents alloc] init];
+    components.era = 1;
+    components.year = FSCalendarDefaultMinimumYear;
+    components.month = 1;
+    components.day = 1;
+    return [calendar dateFromComponents:components];
+}
+
 static inline void FSCalendarAssertDateInBounds(NSDate *date, NSCalendar *calendar, NSDate *minimumDate, NSDate *maximumDate) {
     BOOL valid = YES;
     NSInteger minOffset = [calendar components:NSCalendarUnitDay fromDate:minimumDate toDate:date options:0].day;
@@ -160,8 +173,8 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     _currentPage = [self.gregorian fs_firstDayOfMonth:_today];
     
     
-    _minimumDate = [self.formatter dateFromString:@"1970-01-01"];
-    _maximumDate = [self.formatter dateFromString:@"2099-12-31"];
+    _minimumDate = FSCalendarDefaultMinimumDate(_gregorian);
+    _maximumDate = [self.formatter dateFromString:FSCalendarDefaultMaximumDateString];
     
     _headerHeight     = FSCalendarAutomaticDimension;
     _weekdayHeight    = FSCalendarAutomaticDimension;
@@ -172,6 +185,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     _preferredRowHeight     = FSCalendarAutomaticDimension;
     
     _scrollDirection = FSCalendarScrollDirectionHorizontal;
+    _layoutDirection = FSCalendarLayoutDirectionAutomatic;
     _scope = FSCalendarScopeMonth;
     _selectedDates = [NSMutableArray arrayWithCapacity:1];
     _visibleSectionHeaders = [NSMapTable weakToWeakObjectsMapTable];
@@ -283,6 +297,25 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 {
     _timeZone = tz;
     [self invalidateDateTools];
+}
+
+- (void)setLayoutDirection:(FSCalendarLayoutDirection)layoutDirection
+{
+    if (_layoutDirection != layoutDirection) {
+        _layoutDirection = layoutDirection;
+        [self applyLayoutDirection];
+    }
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection
+{
+    [super traitCollectionDidChange:previousTraitCollection];
+    if (_layoutDirection == FSCalendarLayoutDirectionAutomatic) {
+        [self.calendarWeekdayView setNeedsLayout];
+        [_collectionView.collectionViewLayout invalidateLayout];
+    } else {
+        [self applyLayoutDirection];
+    }
 }
 
 - (void)layoutSubviews
@@ -616,7 +649,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         }
         case FSCalendarScopeWeek: {
             NSDate *minimumPage = [self.gregorian fs_firstDayOfWeek:_minimumDate];
-            targetPage = [self.gregorian dateByAddingUnit:NSCalendarUnitWeekOfYear value:sections toDate:minimumPage options:0];
+            targetPage = [self.gregorian dateByAddingUnit:NSCalendarUnitDay value:sections * 7 toDate:minimumPage options:0];
             break;
         }
     }
@@ -1345,6 +1378,46 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     _preferredRowHeight = FSCalendarAutomaticDimension;
     _needsAdjustingViewFrame = YES;
     [self setNeedsLayout];
+    [self applyLayoutDirection];
+}
+
+- (void)applyLayoutDirection
+{
+    UISemanticContentAttribute attribute;
+    switch (_layoutDirection) {
+        case FSCalendarLayoutDirectionAutomatic:
+            attribute = UISemanticContentAttributeUnspecified;
+            break;
+        case FSCalendarLayoutDirectionLeftToRight:
+            attribute = UISemanticContentAttributeForceLeftToRight;
+            break;
+        case FSCalendarLayoutDirectionRightToLeft:
+            attribute = UISemanticContentAttributeForceRightToLeft;
+            break;
+    }
+    
+    self.semanticContentAttribute = attribute;
+    _contentView.semanticContentAttribute = attribute;
+    _daysContainer.semanticContentAttribute = attribute;
+    _collectionView.semanticContentAttribute = attribute;
+    
+    if (_calendarHeaderView) {
+        _calendarHeaderView.semanticContentAttribute = attribute;
+        _calendarHeaderView.collectionView.semanticContentAttribute = attribute;
+    }
+    if (_calendarWeekdayView) {
+        _calendarWeekdayView.semanticContentAttribute = attribute;
+        [_calendarWeekdayView setNeedsLayout];
+    }
+    for (FSCalendarStickyHeader *header in self.visibleStickyHeaders) {
+        header.semanticContentAttribute = attribute;
+    }
+    
+    if (_layoutDirection != FSCalendarLayoutDirectionAutomatic) {
+        [_collectionView.collectionViewLayout invalidateLayout];
+        [_collectionView reloadData];
+        [_calendarHeaderView reloadData];
+    }
 }
 
 - (void)invalidateHeaders
@@ -1560,9 +1633,9 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     if (_needsRequestingBoundingDates) {
         _needsRequestingBoundingDates = NO;
         self.formatter.dateFormat = @"yyyy-MM-dd";
-        NSDate *newMin = [self.dataSourceProxy minimumDateForCalendar:self]?:[self.formatter dateFromString:@"1970-01-01"];
+        NSDate *newMin = [self.dataSourceProxy minimumDateForCalendar:self] ?: FSCalendarDefaultMinimumDate(self.gregorian);
         newMin = [self.gregorian startOfDayForDate:newMin];
-        NSDate *newMax = [self.dataSourceProxy maximumDateForCalendar:self]?:[self.formatter dateFromString:@"2099-12-31"];
+        NSDate *newMax = [self.dataSourceProxy maximumDateForCalendar:self] ?: [self.formatter dateFromString:FSCalendarDefaultMaximumDateString];
         newMax = [self.gregorian startOfDayForDate:newMax];
         
         NSAssert([self.gregorian compareDate:newMin toDate:newMax toUnitGranularity:NSCalendarUnitDay] != NSOrderedDescending, @"The minimum date of calendar should be earlier than the maximum.");

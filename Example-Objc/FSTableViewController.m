@@ -14,6 +14,7 @@
 #import "ButtonsViewController.h"
 #import "DIYExampleViewController.h"
 #import "RangePickerViewController.h"
+#import "HistoricalCalendarViewController.h"
 
 @implementation FSTableViewController
 
@@ -30,6 +31,7 @@
                              [HidePlaceholderViewController class],
                              [DelegateAppearanceViewController class],
                              [FullScreenExampleViewController class],
+                             [HistoricalCalendarViewController class],
                              [NSObject class],
                              [NSObject class],
                              [LoadViewExampleViewController class]

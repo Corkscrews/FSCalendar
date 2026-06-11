@@ -234,6 +234,28 @@ Then:
 NSDate *date = [self.formatter dateFromString:@"2016-09-10"];
 ```
 
+## Date range
+
+By default, FSCalendar allows navigation from **1900-01-01** through **2099-12-31**. Dates before 1970 are supported without extra configuration.
+
+To customize the range, implement `minimumDateForCalendar:` and `maximumDateForCalendar:` on your `FSCalendarDataSource`. For example, to support genealogy records from 1800 or to restore the previous 1970 floor:
+
+```objc
+- (NSDate *)minimumDateForCalendar:(FSCalendar *)calendar
+{
+    return [self.formatter dateFromString:@"1800-01-01"];
+}
+
+- (NSDate *)maximumDateForCalendar:(FSCalendar *)calendar
+{
+    return [self.formatter dateFromString:@"2099-12-31"];
+}
+```
+
+Very wide ranges create one collection section per month (or week), which can affect scrolling performance. Prefer bounds close to your app's real date domain.
+
+See the **Historical Calendar** example in `Example-Objc` for a pre-1970 demo.
+
 ## How to print out NSDate object
 
 * Use **NSDateFormatter**
