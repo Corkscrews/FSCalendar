@@ -1,13 +1,23 @@
 # Change Log
 
-## [Unreleased]
+## [2.9.0](https://github.com/WenchaoD/FSCalendar/tree/2.9.0) (2026-06-12)
 
 ### Changed
 
 - The default navigable minimum date is now **1900-01-01** instead of **1970-01-01**. Apps that relied on the implicit 1970 floor without implementing `minimumDateForCalendar:` will see a wider scrollable range. Restore the previous behavior by returning `1970-01-01` from `minimumDateForCalendar:`.
 - Assigned calendar time zones are normalized to Foundation's canonical `NSTimeZone` by IANA identifier, fixing incorrect month layout and selection crashes with Swift-bridged zones such as `America/Mazatlan` ([#1424](https://github.com/WenchaoD/FSCalendar/issues/1424)).
 - Month header titles now anchor on the first day of the minimum month, matching grid section math.
-- Week scope section counting now uses day-based offsets from the normalized first week of the minimum date.
+- Week scope section counting and header titles now use calculator day-based offsets from the normalized first week of the minimum date.
+- Minimum iOS deployment target raised to **12.0** (CocoaPods and Swift Package Manager).
+
+### Fixed
+
+- Scope transition completion when `boundingRectWillChange:animated:` is not implemented.
+- Nil-safe layout lookups in `frameForDate:`, scope transitions, and `scrollToDate:`.
+- Calculator cache invalidation after `firstWeekday` and `timeZone` changes.
+- Programmatic `selectDate:` / `deselectDate:` now invoke delegate callbacks ([#283](https://github.com/WenchaoD/FSCalendar/issues/283)).
+- Floating-mode scroll clamp, layout cache invalidation, and deferred scroll adjustment during layout.
+- Appearance default border colors, swipe-to-choose double selection, `isDateSelected:` false positives, memory-warning cache coordination, and other issues documented in `Docs/possible-bugs-review.md`.
 
 ## [2.7.4](https://github.com/WenchaoD/FSCalendar/tree/2.7.4) (2017-03-15)
 [Full Changelog](https://github.com/WenchaoD/FSCalendar/compare/2.7.3...2.7.4)

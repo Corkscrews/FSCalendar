@@ -15,6 +15,7 @@
 #import "DIYExampleViewController.h"
 #import "RangePickerViewController.h"
 #import "HistoricalCalendarViewController.h"
+#import "DateInputCalendarViewController.h"
 
 @implementation FSTableViewController
 
@@ -32,6 +33,7 @@
                              [DelegateAppearanceViewController class],
                              [FullScreenExampleViewController class],
                              [HistoricalCalendarViewController class],
+                             [DateInputCalendarViewController class],
                              [NSObject class],
                              [NSObject class],
                              [LoadViewExampleViewController class]

@@ -62,8 +62,11 @@
 - (SEL)deprecatedSelectorOfSelector:(SEL)selector
 {
     NSString *selectorString = NSStringFromSelector(selector);
-    selectorString = self.deprecations[selectorString];
-    return NSSelectorFromString(selectorString);
+    NSString *deprecatedString = self.deprecations[selectorString];
+    if (!deprecatedString.length) {
+        return selector;
+    }
+    return NSSelectorFromString(deprecatedString);
 }
 
 @end

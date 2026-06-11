@@ -46,4 +46,6 @@ typedef struct FSCalendarCoordinate FSCalendarCoordinate;
 
 - (void)reloadSections;
 
+- (void)clearCaches;
+
 @end

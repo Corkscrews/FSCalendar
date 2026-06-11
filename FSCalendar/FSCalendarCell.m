@@ -215,8 +215,9 @@
     
     BOOL shouldHideShapeLayer = !self.selected && !self.dateIsToday && !borderColor && !fillColor;
     
-    if (_shapeLayer.opacity == shouldHideShapeLayer) {
-        _shapeLayer.opacity = !shouldHideShapeLayer;
+    CGFloat targetOpacity = shouldHideShapeLayer ? 0.0 : 1.0;
+    if (fabs(_shapeLayer.opacity - targetOpacity) > FLT_EPSILON) {
+        _shapeLayer.opacity = targetOpacity;
     }
     if (!shouldHideShapeLayer) {
         

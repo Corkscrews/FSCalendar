@@ -81,4 +81,56 @@
     }];
 }
 
+#pragma mark - Critical bug regressions
+
+- (void)testFrameForDateReturnsZeroForOutOfRangeDate
+{
+    NSDate *outOfRange = [self.formatter dateFromString:@"1899-12-31"];
+    UIWindow *window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 320, 568)];
+    [window addSubview:self.calendar];
+    XCTAssertNoThrow([self.calendar frameForDate:outOfRange]);
+    XCTAssertTrue(CGRectEqualToRect([self.calendar frameForDate:outOfRange], CGRectZero));
+}
+
+- (void)testAnimatedScopeTransitionCompletesWithoutBoundingRectDelegate
+{
+    FSCalendar *calendar = [[FSCalendar alloc] initWithFrame:CGRectMake(0, 0, 320, 300)];
+    calendar.dataSource = self;
+
+    UIWindow *window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 320, 568)];
+    [window addSubview:calendar];
+    [window layoutIfNeeded];
+    [calendar layoutIfNeeded];
+
+    calendar.scope = FSCalendarScopeWeek;
+    [calendar layoutIfNeeded];
+
+    [calendar setScope:FSCalendarScopeMonth animated:YES];
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"scope transition"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        XCTAssertEqual(calendar.transitionCoordinator.state, FSCalendarTransitionStateIdle);
+        XCTAssertEqual(calendar.scope, FSCalendarScopeMonth);
+        [expectation fulfill];
+    });
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testScopeTransitionWithNoSelectionNoToday
+{
+    FSCalendar *calendar = [[FSCalendar alloc] initWithFrame:CGRectMake(0, 0, 320, 300)];
+    calendar.dataSource = self;
+    calendar.today = nil;
+
+    UIWindow *window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 320, 568)];
+    [window addSubview:calendar];
+    [window layoutIfNeeded];
+    [calendar layoutIfNeeded];
+
+    XCTAssertNoThrow([calendar setScope:FSCalendarScopeWeek animated:NO]);
+    XCTAssertEqual(calendar.transitionCoordinator.state, FSCalendarTransitionStateIdle);
+    XCTAssertNoThrow([calendar setScope:FSCalendarScopeMonth animated:NO]);
+    XCTAssertEqual(calendar.transitionCoordinator.state, FSCalendarTransitionStateIdle);
+}
+
 @end

@@ -25,8 +25,6 @@
 @property (readonly, nonatomic) NSDate *minimumDate;
 @property (readonly, nonatomic) NSDate *maximumDate;
 
-- (void)didReceiveNotifications:(NSNotification *)notification;
-
 @end
 
 @implementation FSCalendarCalculator
@@ -43,15 +41,8 @@
         self.monthHeads = [NSMutableDictionary dictionary];
         self.weeks = [NSMutableDictionary dictionary];
         self.rowCounts = [NSMutableDictionary dictionary];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveNotifications:) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
     }
     return self;
-}
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 }
 
 - (id)forwardingTargetForSelector:(SEL)selector
@@ -145,7 +136,14 @@
     }
     switch (scope) {
         case FSCalendarScopeMonth: {
-            NSInteger maxItem = self.calendar.floatingMode ? [self numberOfRowsInSection:section] * 7 - 1 : 41;
+            NSInteger maxItem;
+            if (self.calendar.floatingMode) {
+                maxItem = [self numberOfRowsInSection:section] * 7 - 1;
+            } else if (self.calendar.placeholderType == FSCalendarPlaceholderTypeFillHeadTail) {
+                maxItem = [self numberOfRowsInSection:section] * 7 - 1;
+            } else {
+                maxItem = 41;
+            }
             if (item > maxItem) {
                 return nil;
             }
@@ -309,12 +307,5 @@
 }
 
 #pragma mark - Private functions
-
-- (void)didReceiveNotifications:(NSNotification *)notification
-{
-    if ([notification.name isEqualToString:UIApplicationDidReceiveMemoryWarningNotification]) {
-        [self clearCaches];
-    }
-}
 
 @end

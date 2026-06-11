@@ -127,6 +127,8 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 
 - (BOOL)isIndexPathValidForCollectionView:(NSIndexPath *)indexPath;
 
+- (void)performSelectingForCell:(UICollectionViewCell *)cell;
+
 - (void)adjustMonthPosition;
 - (BOOL)requestBoundingDatesIfNecessary;
 - (void)executePendingOperationsIfNeeded;
@@ -304,6 +306,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     }
     _timeZone = normalized;
     [self invalidateDateTools];
+    [self.calculator reloadSections];
     
     _needsRequestingBoundingDates = YES;
     [self requestBoundingDatesIfNecessary];
@@ -548,8 +551,11 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         }
     }
     if (![_selectedDates containsObject:selectedDate]) {
-        cell.selected = YES;
-        [cell performSelecting];
+        if ([cell isKindOfClass:[FSCalendarCell class]]) {
+            FSCalendarCell *calendarCell = (FSCalendarCell *)cell;
+            calendarCell.selected = YES;
+            [self performSelectingForCell:calendarCell];
+        }
     }
     [self enqueueSelectedDate:selectedDate];
     [self.delegateProxy calendar:self didSelectDate:selectedDate atMonthPosition:monthPosition];
@@ -758,8 +764,10 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         _firstWeekday = firstWeekday;
         _needsRequestingBoundingDates = YES;
         [self invalidateDateTools];
+        [self.calculator reloadSections];
         [self invalidateHeaders];
         [self.collectionView reloadData];
+        [self invalidateLayout];
         [self configureAppearance];
     }
 }
@@ -773,8 +781,15 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         [self updateToday];
     }
     if (self.hasValidateVisibleLayout) {
-        [self.visibleCells makeObjectsPerformSelector:@selector(setDateIsToday:) withObject:nil];
-        if (today) [[_collectionView cellForItemAtIndexPath:[self.calculator indexPathForDate:today]] setValue:@YES forKey:@"dateIsToday"];
+        for (FSCalendarCell *cell in self.visibleCells) {
+            cell.dateIsToday = NO;
+        }
+        if (today) {
+            FSCalendarCell *cell = (FSCalendarCell *)[_collectionView cellForItemAtIndexPath:[self.calculator indexPathForDate:today]];
+            if (cell) {
+                cell.dateIsToday = YES;
+            }
+        }
         [self.visibleCells makeObjectsPerformSelector:@selector(configureAppearance)];
     }
 }
@@ -853,7 +868,15 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     if (!self.superview) {
         return CGRectZero;
     }
-    CGRect frame = [_collectionViewLayout layoutAttributesForItemAtIndexPath:[self.calculator indexPathForDate:date]].frame;
+    NSIndexPath *indexPath = [self.calculator indexPathForDate:date];
+    if (!indexPath) {
+        return CGRectZero;
+    }
+    UICollectionViewLayoutAttributes *attributes = [_collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
+    if (!attributes) {
+        return CGRectZero;
+    }
+    CGRect frame = attributes.frame;
     frame = [self.superview convertRect:frame fromView:_collectionView];
     return frame;
 }
@@ -1114,12 +1137,14 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     [_selectedDates removeObject:date];
     [self deselectCounterpartDate:date];
     NSIndexPath *indexPath = [self.calculator indexPathForDate:date];
+    FSCalendarMonthPosition monthPosition = indexPath ? [self.calculator monthPositionForIndexPath:indexPath] : FSCalendarMonthPositionCurrent;
     if ([_collectionView.indexPathsForSelectedItems containsObject:indexPath]) {
         [_collectionView deselectItemAtIndexPath:indexPath animated:YES];
         FSCalendarCell *cell = (FSCalendarCell *)[_collectionView cellForItemAtIndexPath:indexPath];
         cell.selected = NO;
         [cell configureAppearance];
     }
+    [self.delegateProxy calendar:self didDeselectDate:date atMonthPosition:monthPosition];
 }
 
 - (void)selectDate:(NSDate *)date scrollToDate:(BOOL)scrollToDate atMonthPosition:(FSCalendarMonthPosition)monthPosition
@@ -1185,9 +1210,10 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             return;
         }
         [_collectionView selectItemAtIndexPath:targetIndexPath animated:NO scrollPosition:UICollectionViewScrollPositionNone];
-        FSCalendarCell *cell = (FSCalendarCell *)[_collectionView cellForItemAtIndexPath:targetIndexPath];
-        [cell performSelecting];
+        [self performSelectingForCell:[_collectionView cellForItemAtIndexPath:targetIndexPath]];
         [self enqueueSelectedDate:targetDate];
+        FSCalendarMonthPosition selectedMonthPosition = [self.calculator monthPositionForIndexPath:targetIndexPath];
+        [self.delegateProxy calendar:self didSelectDate:targetDate atMonthPosition:selectedMonthPosition];
         [self selectCounterpartDate:targetDate];
         
     } else if (![_collectionView.indexPathsForSelectedItems containsObject:targetIndexPath]) {
@@ -1225,6 +1251,13 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     return item >= 0 && item < [_collectionView numberOfItemsInSection:section];
 }
 
+- (void)performSelectingForCell:(UICollectionViewCell *)cell
+{
+    if ([cell isKindOfClass:[FSCalendarCell class]]) {
+        [(FSCalendarCell *)cell performSelecting];
+    }
+}
+
 - (void)scrollToDate:(NSDate *)date
 {
     [self scrollToDate:date animated:NO];
@@ -1238,7 +1271,11 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     animated &= _scrollEnabled; // No animation if _scrollEnabled == NO;
     
     date = [self.calculator safeDateForDate:date];
-    NSInteger scrollOffset = [self.calculator indexPathForDate:date atMonthPosition:FSCalendarMonthPositionCurrent].section;
+    NSIndexPath *indexPath = [self.calculator indexPathForDate:date atMonthPosition:FSCalendarMonthPositionCurrent];
+    if (!indexPath) {
+        return;
+    }
+    NSInteger scrollOffset = indexPath.section;
     
     if (!self.floatingMode) {
         switch (_collectionViewLayout.scrollDirection) {
@@ -1255,7 +1292,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     } else if (self.hasValidateVisibleLayout) {
         [_collectionViewLayout layoutAttributesForElementsInRect:_collectionView.bounds];
         CGRect headerFrame = [_collectionViewLayout layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:[NSIndexPath indexPathForItem:0 inSection:scrollOffset]].frame;
-        CGPoint targetOffset = CGPointMake(0, MIN(headerFrame.origin.y,MAX(0,_collectionViewLayout.collectionViewContentSize.height-_collectionView.fs_bottom)));
+        CGPoint targetOffset = CGPointMake(0, MIN(headerFrame.origin.y,MAX(0,_collectionViewLayout.collectionViewContentSize.height-_collectionView.fs_height)));
         [_collectionView setContentOffset:targetOffset animated:animated];
     }
     if (!animated) {
@@ -1336,7 +1373,8 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 
 - (BOOL)isDateSelected:(NSDate *)date
 {
-    return [_selectedDates containsObject:date] || [_collectionView.indexPathsForSelectedItems containsObject:[self.calculator indexPathForDate:date]];
+    date = [self.gregorian startOfDayForDate:date];
+    return [_selectedDates containsObject:date];
 }
 
 - (BOOL)isDateInDifferentPage:(NSDate *)date
@@ -1571,10 +1609,8 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
                 FSCalendarMonthPosition monthPosition = [self.calculator monthPositionForIndexPath:indexPath];
                 if (![self.selectedDates containsObject:date] && [self collectionView:self.collectionView shouldSelectItemAtIndexPath:indexPath]) {
                     [self selectDate:date scrollToDate:NO atMonthPosition:monthPosition];
-                    [self collectionView:self.collectionView didSelectItemAtIndexPath:indexPath];
                 } else if (self.collectionView.allowsMultipleSelection && [self collectionView:self.collectionView shouldDeselectItemAtIndexPath:indexPath]) {
                     [self deselectDate:date];
-                    [self collectionView:self.collectionView didDeselectItemAtIndexPath:indexPath];
                 }
             }
             self.lastPressedIndexPath = indexPath;

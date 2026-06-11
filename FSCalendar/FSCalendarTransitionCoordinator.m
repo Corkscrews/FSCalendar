@@ -71,6 +71,18 @@
     }
 }
 
+- (BOOL)isScopeTransitionPanGesture:(UIGestureRecognizer *)gestureRecognizer
+{
+    if (gestureRecognizer == self.calendar.scopeGesture) {
+        return YES;
+    }
+    if (![gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+        return NO;
+    }
+    // Legacy custom scope gestures attach a pan to the calendar and target -handleScopeGesture:
+    return gestureRecognizer.view == self.calendar;
+}
+
 #pragma mark - <UIGestureRecognizerDelegate>
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
@@ -84,7 +96,7 @@
     if (gestureRecognizer == self.calendar.scopeGesture && self.calendar.collectionViewLayout.scrollDirection == UICollectionViewScrollDirectionVertical) {
         return NO;
     }
-    if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]] && [[gestureRecognizer valueForKey:@"_targets"] containsObject:self.calendar]) {
+    if ([self isScopeTransitionPanGesture:gestureRecognizer]) {
         CGPoint velocity = [(UIPanGestureRecognizer *)gestureRecognizer velocityInView:gestureRecognizer.view];
         BOOL shouldStart = self.calendar.scope == FSCalendarScopeWeek ? velocity.y >= 0 : velocity.y <= 0;
         if (!shouldStart) return NO;
@@ -286,21 +298,24 @@
             }
             dates.copy;
         });
+        NSIndexPath *currentPageIndexPath = [self.calendar.calculator indexPathForDate:self.calendar.currentPage scope:1-targetScope];
         NSArray<NSDate *> *visibleCandidates = [candidates filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDate *  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
             NSIndexPath *indexPath = [self.calendar.calculator indexPathForDate:evaluatedObject scope:1-targetScope];
-            NSInteger currentSection = [self.calendar.calculator indexPathForDate:self.calendar.currentPage scope:1-targetScope].section;
-            return indexPath.section == currentSection;
+            if (!indexPath || !currentPageIndexPath) {
+                return NO;
+            }
+            return indexPath.section == currentPageIndexPath.section;
         }]];
-        NSDate *date = visibleCandidates.firstObject;
+        NSDate *date = visibleCandidates.firstObject ?: self.calendar.currentPage;
         date;
     });
     attributes.focusedRow = ({
         NSIndexPath *indexPath = [self.calendar.calculator indexPathForDate:attributes.focusedDate scope:FSCalendarScopeMonth];
-        FSCalendarCoordinate coordinate = [self.calendar.calculator coordinateForIndexPath:indexPath];
-        coordinate.row;
+        indexPath ? [self.calendar.calculator coordinateForIndexPath:indexPath].row : 0;
     });
     attributes.targetPage = ({
-        NSDate *targetPage = targetScope == FSCalendarScopeMonth ? [self.calendar.gregorian fs_firstDayOfMonth:attributes.focusedDate] : [self.calendar.gregorian fs_middleDayOfWeek:attributes.focusedDate];
+        NSDate *focusDate = attributes.focusedDate ?: self.calendar.currentPage;
+        NSDate *targetPage = targetScope == FSCalendarScopeMonth ? [self.calendar.gregorian fs_firstDayOfMonth:focusDate] : [self.calendar.gregorian fs_middleDayOfWeek:focusDate];
         targetPage;
     });
     attributes.targetBounds = [self boundingRectForScope:attributes.targetScope page:attributes.targetPage];
@@ -359,15 +374,13 @@
     [self.calendar didChangeValueForKey:@"scope"];
     
     if (animated) {
-        if (self.calendar.delegate && ([self.calendar.delegate respondsToSelector:@selector(calendar:boundingRectWillChange:animated:)])) {
-            [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-                [self performAlphaAnimationWithProgress:toProgress];
-                self.collectionView.fs_top = [self calculateOffsetForProgress:toProgress];
-                [self boundingRectWillChange:attr.targetBounds animated:YES];
-            } completion:^(BOOL finished) {
-                [self performTransitionCompletionAnimated:YES];
-            }];
-        }
+        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            [self performAlphaAnimationWithProgress:toProgress];
+            self.collectionView.fs_top = [self calculateOffsetForProgress:toProgress];
+            [self boundingRectWillChange:attr.targetBounds animated:YES];
+        } completion:^(BOOL finished) {
+            [self performTransitionCompletionAnimated:YES];
+        }];
     } else {
         [self performTransitionCompletionAnimated:animated];
         [self boundingRectWillChange:attr.targetBounds animated:animated];
@@ -403,8 +416,16 @@
 
 - (CGFloat)calculateOffsetForProgress:(CGFloat)progress
 {
-    NSIndexPath *indexPath = [self.calendar.calculator indexPathForDate:self.transitionAttributes.focusedDate scope:FSCalendarScopeMonth];
-    CGRect frame = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath].frame;
+    NSDate *focusedDate = self.transitionAttributes.focusedDate ?: self.calendar.currentPage;
+    NSIndexPath *indexPath = [self.calendar.calculator indexPathForDate:focusedDate scope:FSCalendarScopeMonth];
+    if (!indexPath) {
+        return 0;
+    }
+    UICollectionViewLayoutAttributes *attributes = [self.collectionViewLayout layoutAttributesForItemAtIndexPath:indexPath];
+    if (!attributes) {
+        return 0;
+    }
+    CGRect frame = attributes.frame;
     CGFloat ratio = self.transitionAttributes.targetScope == FSCalendarScopeWeek ? progress : (1 - progress);
     CGFloat offset = (-frame.origin.y + self.collectionViewLayout.sectionInsets.top) * ratio;
     return offset;

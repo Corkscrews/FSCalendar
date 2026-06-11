@@ -37,6 +37,7 @@
 @property (assign, nonatomic) NSInteger numberOfSections;
 
 @property (assign, nonatomic) FSCalendarSeparators separators;
+@property (assign, nonatomic) NSInteger layoutSignature;
 
 @property (strong, nonatomic) NSMutableDictionary<NSIndexPath *, UICollectionViewLayoutAttributes *> *itemAttributes;
 @property (strong, nonatomic) NSMutableDictionary<NSIndexPath *, UICollectionViewLayoutAttributes *> *headerAttributes;
@@ -95,13 +96,30 @@
     free(self.sectionBottoms);
 }
 
+- (NSInteger)layoutSignatureForCurrentState
+{
+    NSInteger signature = self.calendar.firstWeekday;
+    signature = signature * 31 + self.calendar.placeholderType;
+    signature = signature * 31 + self.calendar.adjustsBoundingRectWhenChangingMonths;
+    signature = signature * 31 + self.calendar.transitionCoordinator.representingScope;
+    if (self.calendar.floatingMode) {
+        NSInteger sections = self.collectionView.numberOfSections;
+        for (NSInteger section = 0; section < sections; section++) {
+            signature = signature * 31 + [self.calendar.calculator numberOfRowsInSection:section];
+        }
+    }
+    return signature;
+}
+
 - (void)prepareLayout
 {
-    if (CGSizeEqualToSize(self.collectionViewSize, self.collectionView.frame.size) && self.numberOfSections == self.collectionView.numberOfSections && self.separators == self.calendar.appearance.separators) {
+    NSInteger layoutSignature = [self layoutSignatureForCurrentState];
+    if (CGSizeEqualToSize(self.collectionViewSize, self.collectionView.frame.size) && self.numberOfSections == self.collectionView.numberOfSections && self.separators == self.calendar.appearance.separators && self.layoutSignature == layoutSignature) {
         return;
     }
     self.collectionViewSize = self.collectionView.frame.size;
     self.separators = self.calendar.appearance.separators;
+    self.layoutSignature = layoutSignature;
     
     [self.itemAttributes removeAllObjects];
     [self.headerAttributes removeAllObjects];
@@ -245,7 +263,10 @@
         contentSize;
     });
     
-    [self.calendar adjustMonthPosition];
+    __weak FSCalendar *calendar = self.calendar;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [calendar adjustMonthPosition];
+    });
 }
 
 - (CGSize)collectionViewContentSize
@@ -515,9 +536,12 @@
         [self invalidateLayout];
     }
     if ([notification.name isEqualToString:UIApplicationDidReceiveMemoryWarningNotification]) {
+        [self.calendar.calculator clearCaches];
         [self.itemAttributes removeAllObjects];
         [self.headerAttributes removeAllObjects];
         [self.rowSeparatorAttributes removeAllObjects];
+        self.layoutSignature = 0;
+        [self invalidateLayout];
     }
 }
 

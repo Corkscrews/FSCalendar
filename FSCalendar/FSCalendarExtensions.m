@@ -68,7 +68,7 @@
 
 - (void)setFs_right:(CGFloat)fs_right
 {
-    self.fs_left = self.fs_right - self.fs_width;
+    self.fs_left = fs_right - self.fs_width;
 }
 
 @end
@@ -133,14 +133,8 @@
 
 - (void)setFs_right:(CGFloat)fs_right
 {
-    self.fs_left = self.fs_right - self.fs_width;
+    self.fs_left = fs_right - self.fs_width;
 }
-
-@end
-
-@interface NSCalendar (FSCalendarExtensionsPrivate)
-
-@property (readonly, nonatomic) NSDateComponents *fs_privateComponents;
 
 @end
 
@@ -183,33 +177,29 @@
 {
     if (!week) return nil;
     NSDateComponents *weekdayComponents = [self components:NSCalendarUnitWeekday fromDate:week];
-    NSDateComponents *components = self.fs_privateComponents;
+    NSDateComponents *components = [[NSDateComponents alloc] init];
     components.day = - (weekdayComponents.weekday - self.firstWeekday);
     components.day = (components.day-7) % 7;
     NSDate *firstDayOfWeek = [self dateByAddingComponents:components toDate:week options:0];
-    firstDayOfWeek = [self startOfDayForDate:firstDayOfWeek];
-    components.day = NSIntegerMax;
-    return firstDayOfWeek;
+    return [self startOfDayForDate:firstDayOfWeek];
 }
 
 - (nullable NSDate *)fs_lastDayOfWeek:(NSDate *)week
 {
     if (!week) return nil;
     NSDateComponents *weekdayComponents = [self components:NSCalendarUnitWeekday fromDate:week];
-    NSDateComponents *components = self.fs_privateComponents;
+    NSDateComponents *components = [[NSDateComponents alloc] init];
     components.day = - (weekdayComponents.weekday - self.firstWeekday);
     components.day = (components.day-7) % 7 + 6;
     NSDate *lastDayOfWeek = [self dateByAddingComponents:components toDate:week options:0];
-    lastDayOfWeek = [self startOfDayForDate:lastDayOfWeek];
-    components.day = NSIntegerMax;
-    return lastDayOfWeek;
+    return [self startOfDayForDate:lastDayOfWeek];
 }
 
 - (nullable NSDate *)fs_middleDayOfWeek:(NSDate *)week
 {
     if (!week) return nil;
     NSDateComponents *weekdayComponents = [self components:NSCalendarUnitWeekday fromDate:week];
-    NSDateComponents *componentsToSubtract = self.fs_privateComponents;
+    NSDateComponents *componentsToSubtract = [[NSDateComponents alloc] init];
     componentsToSubtract.day = - (weekdayComponents.weekday - self.firstWeekday) + 3;
     // Fix https://github.com/WenchaoD/FSCalendar/issues/1100 and https://github.com/WenchaoD/FSCalendar/issues/1102
     // If firstWeekday is not 1, and weekday is less than firstWeekday, the middleDayOfWeek will be the middle day of next week
@@ -217,9 +207,7 @@
         componentsToSubtract.day = componentsToSubtract.day - 7;
     }
     NSDate *middleDayOfWeek = [self dateByAddingComponents:componentsToSubtract toDate:week options:0];
-    middleDayOfWeek = [self startOfDayForDate:middleDayOfWeek];
-    componentsToSubtract.day = NSIntegerMax;
-    return middleDayOfWeek;
+    return [self startOfDayForDate:middleDayOfWeek];
 }
 
 - (NSInteger)fs_numberOfDaysInMonth:(NSDate *)month
@@ -229,16 +217,6 @@
                                         inUnit:NSCalendarUnitMonth
                                        forDate:month];
     return days.length;
-}
-
-- (NSDateComponents *)fs_privateComponents
-{
-    NSDateComponents *components = objc_getAssociatedObject(self, _cmd);
-    if (!components) {
-        components = [[NSDateComponents alloc] init];
-        objc_setAssociatedObject(self, _cmd, components, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    return components;
 }
 
 @end

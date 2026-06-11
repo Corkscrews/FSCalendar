@@ -65,14 +65,13 @@
         _subtitleColors[@(FSCalendarCellStatePlaceholder)] = [UIColor lightGrayColor];
         _subtitleColors[@(FSCalendarCellStateToday)]       = [UIColor whiteColor];
         
+        _borderColors = [NSMutableDictionary dictionaryWithCapacity:2];
         _borderColors[@(FSCalendarCellStateSelected)] = [UIColor clearColor];
         _borderColors[@(FSCalendarCellStateNormal)] = [UIColor clearColor];
         
         _borderRadius = 1.0;
         _eventDefaultColor = FSCalendarStandardEventDotColor;
         _eventSelectionColor = FSCalendarStandardEventDotColor;
-        
-        _borderColors = [NSMutableDictionary dictionaryWithCapacity:2];
         
 #if TARGET_INTERFACE_BUILDER
         _fakeEventDots = YES;
