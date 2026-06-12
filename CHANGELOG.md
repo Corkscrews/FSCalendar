@@ -1,5 +1,14 @@
 # Change Log
 
+## [2.10.0](https://github.com/Corkscrews/FSCalendar/tree/2.10.0) (2026-06-12)
+
+Maintained by [Pedro Paulo de Amorim](https://github.com/Corkscrews) as co-author of the Corkscrews fork.
+
+### Changed
+
+- Floating mode layout now uses lazy section metrics (`FSCalendarSectionMetrics`) instead of precomputing geometry for every month section during `prepareLayout`. Wide ranges such as the default 0001–4000 span no longer trigger an O(n) layout pass on every invalidation. See `Docs/floating-layout-lazy-section-metrics-plan.md`.
+- The default navigable date range is now the full **`NSDate` span** (**0001-01-01** through **4000-12-31**) instead of **1900-01-01** through **2099-12-31**. Apps that relied on the implicit 1900 floor without implementing `minimumDateForCalendar:` will see a wider scrollable range. Narrow the range with `minimumDateForCalendar:` / `maximumDateForCalendar:` when you do not need the full span; restore the previous 1900 floor by returning `1900-01-01` from `minimumDateForCalendar:`.
+
 ## [2.9.0](https://github.com/Corkscrews/FSCalendar/tree/2.9.0) (2026-06-12)
 
 Maintained by [Pedro Paulo de Amorim](https://github.com/Corkscrews) as co-author of the Corkscrews fork.

@@ -21,8 +21,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSInteger const FSCalendarDefaultMinimumYear = 1900;
-static NSString * const FSCalendarDefaultMaximumDateString = @"2099-12-31";
+static NSInteger const FSCalendarDefaultMinimumYear = 1;
+static NSInteger const FSCalendarDefaultMaximumYear = 4000;
 
 static NSDate *FSCalendarDefaultMinimumDate(NSCalendar *calendar)
 {
@@ -31,6 +31,17 @@ static NSDate *FSCalendarDefaultMinimumDate(NSCalendar *calendar)
     components.year = FSCalendarDefaultMinimumYear;
     components.month = 1;
     components.day = 1;
+    components.timeZone = calendar.timeZone;
+    return [calendar startOfDayForDate:[calendar dateFromComponents:components]];
+}
+
+static NSDate *FSCalendarDefaultMaximumDate(NSCalendar *calendar)
+{
+    NSDateComponents *components = [[NSDateComponents alloc] init];
+    components.era = 1;
+    components.year = FSCalendarDefaultMaximumYear;
+    components.month = 12;
+    components.day = 31;
     components.timeZone = calendar.timeZone;
     return [calendar startOfDayForDate:[calendar dateFromComponents:components]];
 }
@@ -179,7 +190,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     
     
     _minimumDate = FSCalendarDefaultMinimumDate(_gregorian);
-    _maximumDate = [self.formatter dateFromString:FSCalendarDefaultMaximumDateString];
+    _maximumDate = FSCalendarDefaultMaximumDate(_gregorian);
     
     _headerHeight     = FSCalendarAutomaticDimension;
     _weekdayHeight    = FSCalendarAutomaticDimension;
@@ -1290,9 +1301,8 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         }
         
     } else if (self.hasValidateVisibleLayout) {
-        [_collectionViewLayout layoutAttributesForElementsInRect:_collectionView.bounds];
-        CGRect headerFrame = [_collectionViewLayout layoutAttributesForSupplementaryViewOfKind:UICollectionElementKindSectionHeader atIndexPath:[NSIndexPath indexPathForItem:0 inSection:scrollOffset]].frame;
-        CGPoint targetOffset = CGPointMake(0, MIN(headerFrame.origin.y,MAX(0,_collectionViewLayout.collectionViewContentSize.height-_collectionView.fs_height)));
+        CGFloat headerTop = [_collectionViewLayout floatingTopForSection:scrollOffset];
+        CGPoint targetOffset = CGPointMake(0, MIN(headerTop,MAX(0,_collectionViewLayout.collectionViewContentSize.height-_collectionView.fs_height)));
         [_collectionView setContentOffset:targetOffset animated:animated];
     }
     if (!animated) {
@@ -1727,7 +1737,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
         self.formatter.dateFormat = @"yyyy-MM-dd";
         NSDate *newMin = [self.dataSourceProxy minimumDateForCalendar:self] ?: FSCalendarDefaultMinimumDate(self.gregorian);
         newMin = [self.gregorian startOfDayForDate:newMin];
-        NSDate *newMax = [self.dataSourceProxy maximumDateForCalendar:self] ?: [self.formatter dateFromString:FSCalendarDefaultMaximumDateString];
+        NSDate *newMax = [self.dataSourceProxy maximumDateForCalendar:self] ?: FSCalendarDefaultMaximumDate(self.gregorian);
         newMax = [self.gregorian startOfDayForDate:newMax];
         
         NSAssert([self.gregorian compareDate:newMin toDate:newMax toUnitGranularity:NSCalendarUnitDay] != NSOrderedDescending, @"The minimum date of calendar should be earlier than the maximum.");

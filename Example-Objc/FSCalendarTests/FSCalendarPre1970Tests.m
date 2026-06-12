@@ -95,8 +95,10 @@
     [calendar reloadData];
 
     XCTAssertNoThrow([calendar selectDate:[self dateFromString:@"1969-12-31"]]);
-    XCTAssertNoThrow([calendar selectDate:[self dateFromString:@"1900-01-01"]]);
-    XCTAssertTrue([calendar.gregorian isDate:calendar.minimumDate inSameDayAsDate:[self dateFromString:@"1900-01-01"]]);
+    XCTAssertNoThrow([calendar selectDate:[self dateFromString:@"0001-01-01"]]);
+    XCTAssertNoThrow([calendar selectDate:[self dateFromString:@"1899-12-31"]]);
+    XCTAssertTrue([calendar.gregorian isDate:calendar.minimumDate inSameDayAsDate:[self dateFromString:@"0001-01-01"]]);
+    XCTAssertTrue([calendar.gregorian isDate:calendar.maximumDate inSameDayAsDate:[self dateFromString:@"4000-12-31"]]);
 }
 
 - (void)testSelectDate1900
@@ -154,8 +156,11 @@
     FSCalendar *calendar = [[FSCalendar alloc] initWithFrame:CGRectMake(0, 0, 320, 300)];
     [calendar reloadData];
 
-    XCTAssertThrows([calendar selectDate:[self dateFromString:@"1899-12-31"]]);
-    XCTAssertThrows([calendar selectDate:[self dateFromString:@"2300-01-01"]]);
+    NSDate *beforeMinimum = [calendar.gregorian dateByAddingUnit:NSCalendarUnitDay value:-1 toDate:calendar.minimumDate options:0];
+    NSDate *afterMaximum = [calendar.gregorian dateByAddingUnit:NSCalendarUnitDay value:1 toDate:calendar.maximumDate options:0];
+
+    XCTAssertThrows([calendar selectDate:beforeMinimum]);
+    XCTAssertThrows([calendar selectDate:afterMaximum]);
 }
 
 - (void)testWeekScopePre1970

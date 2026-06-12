@@ -68,6 +68,8 @@
 
 @property (readonly, nonatomic) CGSize estimatedItemSize;
 
+- (CGFloat)floatingTopForSection:(NSInteger)section;
+
 @end
 
 @interface FSCalendarDelegationProxy()<FSCalendarDataSource,FSCalendarDelegate,FSCalendarDelegateAppearance>

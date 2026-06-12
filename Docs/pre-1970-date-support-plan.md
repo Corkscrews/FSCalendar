@@ -223,7 +223,7 @@ Before changing behavior, add a small baseline test proving that pre-1970 dates 
 
 ### 1. Performance with very wide ranges
 
-Each month in range = one `UICollectionView` section. A range of 0001–2099 is about **25,188 month sections** and about **109,500 week sections**. A range of 1900–2099 is about **2,400 month sections**. Layout allocates `sectionHeights`, `sectionTops`, and `sectionBottoms` arrays proportional to section count (`FSCalendarCollectionViewLayout.m`).
+Each month in range = one `UICollectionView` section. A range of 0001–2099 is about **25,188 month sections** and about **109,500 week sections**. A range of 1900–2099 is about **2,400 month sections**. Floating mode previously allocated `sectionHeights`, `sectionTops`, and `sectionBottoms` arrays proportional to section count; see `Docs/floating-layout-lazy-section-metrics-plan.md` for the lazy metrics implementation.
 
 **Mitigation:**
 

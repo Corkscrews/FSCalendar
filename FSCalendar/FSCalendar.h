@@ -87,13 +87,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable UIImage *)calendar:(FSCalendar *)calendar imageForDate:(NSDate *)date;
 
 /**
- Asks the dataSource the minimum date to display. When not implemented, defaults to 1900-01-01.
- Implement this method to support dates earlier than 1900 or to restore the previous 1970-01-01 floor.
+ Asks the dataSource the minimum date to display. When not implemented, defaults to the earliest
+ representable Gregorian date (0001-01-01, matching `NSDate.distantPast`).
+ Implement this method to narrow the range or to restore the previous 1970-01-01 floor.
  */
 - (NSDate *)minimumDateForCalendar:(FSCalendar *)calendar;
 
 /**
- Asks the dataSource the maximum date to display. When not implemented, defaults to 2099-12-31.
+ Asks the dataSource the maximum date to display. When not implemented, defaults to the latest
+ representable Gregorian date (4000-12-31, the day before `NSDate.distantFuture`).
  */
 - (NSDate *)maximumDateForCalendar:(FSCalendar *)calendar;
 
@@ -402,6 +404,8 @@ IB_DESIGNABLE
 
 /**
  A Boolean value that determines whether paging is enabled for the calendar.
+
+ When `scrollEnabled` is YES and `pagingEnabled` is NO in month scope, the calendar enters floating mode and lays out months with variable height. Floating mode uses lazy section metrics internally, but you should still provide explicit `minimumDateForCalendar:` / `maximumDateForCalendar:` bounds when your app only needs a domain-sized range.
  */
 @property (assign, nonatomic) IBInspectable BOOL pagingEnabled;
 
@@ -423,16 +427,16 @@ IB_DESIGNABLE
 /**
  A date object representing the minimum day enable、visible and selectable. (read-only)
 
- Defaults to 1900-01-01 when the data source does not implement `minimumDateForCalendar:`.
- For dates earlier than 1900, implement `minimumDateForCalendar:` on your data source.
- Very wide ranges can affect scrolling performance because each month is a collection section.
+ Defaults to 0001-01-01 when the data source does not implement `minimumDateForCalendar:`.
+ Very wide ranges increase the number of collection sections. Floating mode (`scrollEnabled = YES`, `pagingEnabled = NO`) computes layout lazily, but narrowing the range is still recommended for domain-sized calendars.
+ Implement `minimumDateForCalendar:` to narrow the range when you do not need the full `NSDate` span.
  */
 @property (readonly, nonatomic) NSDate *minimumDate;
 
 /**
  A date object representing the maximum day enable、visible and selectable. (read-only)
 
- Defaults to 2099-12-31 when the data source does not implement `maximumDateForCalendar:`.
+ Defaults to 4000-12-31 when the data source does not implement `maximumDateForCalendar:`.
  */
 @property (readonly, nonatomic) NSDate *maximumDate;
 
