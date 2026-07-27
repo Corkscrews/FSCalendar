@@ -1,5 +1,13 @@
 # Change Log
 
+## [2.10.1](https://github.com/Corkscrews/FSCalendar/tree/2.10.1) (2026-07-27)
+
+Maintained by [Pedro Paulo de Amorim](https://github.com/Corkscrews) as co-author of the Corkscrews fork.
+
+### Fixed
+
+- Month header titles no longer disappear after scrolling forward and back. Header cells are reconfigured on display and scroll-offset changes, sentinel blank titles apply only to boundary items, and header alpha is clamped to a finite `[0, 1]` range when cell width/height is zero or invalid ([#1438](https://github.com/WenchaoD/FSCalendar/issues/1438)).
+
 ## [2.10.0](https://github.com/Corkscrews/FSCalendar/tree/2.10.0) (2026-06-12)
 
 Maintained by [Pedro Paulo de Amorim](https://github.com/Corkscrews) as co-author of the Corkscrews fork.
