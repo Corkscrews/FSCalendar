@@ -12,6 +12,7 @@
 		30AA11BB22CC33DD44EE01 /* FSCalendarPre1970Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AA11BB22CC33DD44EE02 /* FSCalendarPre1970Tests.m */; };
 		30AA11BB22CC33DD44EE06 /* FSCalendarTimeZoneTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 30AA11BB22CC33DD44EE07 /* FSCalendarTimeZoneTests.m */; };
 		30FSMET007B8A1F550006DD1A /* FSCalendarFloatingLayoutTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FSMET006B8A1F550006DD1A /* FSCalendarFloatingLayoutTests.m */; };
+		30HDRTTL01B8A1F550006DD1A /* FSCalendarHeaderTitleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 30HDRTTL02B8A1F550006DD1A /* FSCalendarHeaderTitleTests.m */; };
 		30FSMET003B8A1F550006DD1A /* FSCalendarSectionMetrics.h in Headers */ = {isa = PBXBuildFile; fileRef = 30FSMET001B8A1F550006DD1A /* FSCalendarSectionMetrics.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		30FSMET004B8A1F550006DD1A /* FSCalendarSectionMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FSMET002B8A1F550006DD1A /* FSCalendarSectionMetrics.m */; };
 		30FSMET005B8A1F550006DD1A /* FSCalendarSectionMetrics.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FSMET002B8A1F550006DD1A /* FSCalendarSectionMetrics.m */; };
@@ -172,6 +173,7 @@
 		30FSMET001B8A1F550006DD1A /* FSCalendarSectionMetrics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSCalendarSectionMetrics.h; sourceTree = "<group>"; };
 		30FSMET002B8A1F550006DD1A /* FSCalendarSectionMetrics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSCalendarSectionMetrics.m; sourceTree = "<group>"; };
 		30FSMET006B8A1F550006DD1A /* FSCalendarFloatingLayoutTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSCalendarFloatingLayoutTests.m; sourceTree = "<group>"; };
+		30HDRTTL02B8A1F550006DD1A /* FSCalendarHeaderTitleTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSCalendarHeaderTitleTests.m; sourceTree = "<group>"; };
 		30F4C90D1E07C12B00D2EC4D /* FSCalendarDelegationFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSCalendarDelegationFactory.h; sourceTree = "<group>"; };
 		30F4C90E1E07C12B00D2EC4D /* FSCalendarDelegationFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSCalendarDelegationFactory.m; sourceTree = "<group>"; };
 		30FCB3941BAAD112002B87AD /* FSCalendarStickyHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSCalendarStickyHeader.h; sourceTree = "<group>"; };
@@ -438,6 +440,7 @@
 				30AA11BB22CC33DD44EE02 /* FSCalendarPre1970Tests.m */,
 				30AA11BB22CC33DD44EE07 /* FSCalendarTimeZoneTests.m */,
 				30FSMET006B8A1F550006DD1A /* FSCalendarFloatingLayoutTests.m */,
+				30HDRTTL02B8A1F550006DD1A /* FSCalendarHeaderTitleTests.m */,
 				301F93441D8802D90028BEC8 /* FSCalendarExtensionTest.m */,
 				EE638CF31B8A1F550006DD1A /* Supporting Files */,
 			);
@@ -690,6 +693,7 @@
 				30AA11BB22CC33DD44EE01 /* FSCalendarPre1970Tests.m in Sources */,
 				30AA11BB22CC33DD44EE06 /* FSCalendarTimeZoneTests.m in Sources */,
 				30FSMET007B8A1F550006DD1A /* FSCalendarFloatingLayoutTests.m in Sources */,
+				30HDRTTL01B8A1F550006DD1A /* FSCalendarHeaderTitleTests.m in Sources */,
 				30F4C9121E07C12B00D2EC4D /* FSCalendarDelegationFactory.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
